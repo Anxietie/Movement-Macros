@@ -1,0 +1,30 @@
+{
+	"schemaVersion": 1,
+	"id": "movmacro",
+	"version": "${version}",
+	"name": "Movement Macros",
+	"description": "Adds macros for moving",
+	"authors": [
+		"Anxietie"
+	],
+	"contact": {
+		"sources": "https://github.com/anxietie/movement-macros.git"
+	},
+	"license": "GPL-3.0",
+	"icon": "assets/movmacro/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"com.mod.movmacro.MovementMacrosClient"
+		]
+	},
+	"mixins": [
+		"movmacro.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=${loader_version}",
+		"fabric-api": ">=${fabric_version}",
+		"minecraft": "${minecraft_version}",
+		"java": ">=17"
+	}
+}
