@@ -54,6 +54,7 @@ public class MovementMacro extends Macro {
 			case END -> {
 				movementType.setPressed(false);
 				this.resetTickDelta();
+				this.getParent().decrementRunning();
 				return;
 			}
 		}

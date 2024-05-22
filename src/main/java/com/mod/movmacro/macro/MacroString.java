@@ -3,6 +3,7 @@ package com.mod.movmacro.macro;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.mod.movmacro.events.ClientEndTickEvent;
 import com.mod.movmacro.macro.types.MacroType;
 import com.mod.movmacro.macro.types.TickType;
 import net.fabricmc.api.EnvType;
@@ -19,6 +20,7 @@ import java.util.*;
 public class MacroString {
 	private final LinkedList<Macro> macros = new LinkedList<>();
 	private final Map<Integer, Macro> stops = new HashMap<>();
+	private int running = 0;
 	private String name;
 	private boolean enabled = true;
 	private KeyBinding trigger;
@@ -30,11 +32,20 @@ public class MacroString {
 	public MacroString() {}
 
 	public void run(MinecraftClient client) {
-		for (Macro macro : macros)
+		for (Macro macro : macros) {
+			this.incrementRunning();
 			macro.run(client, TickType.START);
+		}
 	}
 
 	public boolean isEnabled() { return this.enabled; }
+	public void incrementRunning() { ++this.running; }
+	public void decrementRunning() {
+		--this.running;
+		if (canRun())
+			ClientEndTickEvent.unlockInput();
+	}
+	public boolean canRun() { return this.running == 0; }
 	/*
 	public void enable() { this.enabled = true; }
 	public void disable() { this.enabled = false; }

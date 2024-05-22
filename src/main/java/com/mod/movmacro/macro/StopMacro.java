@@ -41,6 +41,7 @@ public class StopMacro extends Macro {
 			}
 			case END -> {
 				this.resetTickDelta();
+				this.getParent().decrementRunning();
 				return;
 			}
 		}

@@ -22,5 +22,10 @@ public class MovementMacrosClient implements ClientModInitializer {
 		ClientStartEvent.registerClientStart();
 		ClientEndTickEvent.registerClientEndTicks();
 		ClientCommandRegisterEvent.registerClientCommands();
+
+		/* TODO:
+		 * add event based macros
+		 * add triggered stops (either by keybind or using ids)
+		 */
 	}
 }
