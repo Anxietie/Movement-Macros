@@ -9,7 +9,7 @@ import net.minecraft.text.Text;
 
 @Environment(EnvType.CLIENT)
 public class ClientCommandRegisterEvent {
-	public static void registerClientCommands() {
+	public static void register() {
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registry) -> {
 			dispatcher.register(
 					ClientCommandManager.literal("macros")

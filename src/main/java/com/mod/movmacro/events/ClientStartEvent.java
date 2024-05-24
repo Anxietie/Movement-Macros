@@ -10,7 +10,7 @@ import static com.mod.movmacro.MovementMacrosClient.LOGGER;
 
 @Environment(EnvType.CLIENT)
 public class ClientStartEvent {
-	public static void registerClientStart() {
+	public static void register() {
 		ClientLifecycleEvents.CLIENT_STARTED.register(client -> {
 			MovementType.init(client);
 			if (!MacroManager.load()) LOGGER.error("FATAL ERROR: CONFIG UNABLE TO INITIALIZE", new Exception());

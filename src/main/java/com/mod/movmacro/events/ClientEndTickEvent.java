@@ -12,11 +12,8 @@ import net.minecraft.client.gui.screen.ChatScreen;
 import net.minecraft.client.option.KeyBinding;
 
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.Map;
-
-import static com.mojang.text2speech.Narrator.LOGGER;
 
 // thanks https://github.com/DanilMK/macrofactory
 
@@ -24,10 +21,10 @@ import static com.mojang.text2speech.Narrator.LOGGER;
 public class ClientEndTickEvent {
 	private static final List<Macro> macrosInLoop = new ArrayList<>();
 	private static final List<Macro> remover = new ArrayList<>();
-	private static boolean running = false;
+	private static MacroString running = null;
 	private static boolean breaking;
 
-	public static void registerClientEndTicks() {
+	public static void register() {
 		ClientTickEvents.END_CLIENT_TICK.register((client) -> {
 			if (client.player == null || client.world == null) return;
 			if (client.currentScreen instanceof ChatScreen) return;
@@ -42,15 +39,15 @@ public class ClientEndTickEvent {
 			}
 			remover.clear();
 
-			for (Macro macro : macrosInLoop)
+			for (Macro macro : List.copyOf(macrosInLoop)) // avoid concurrent modification exception
 				macro.run(client, TickType.TICK);
 
-			if (running) return;
+			if (running != null) return;
 
 			for (Map.Entry<KeyBinding, MacroString> e : MacroManager.triggers.entrySet()) {
-				if (e.getValue().isEnabled() && e.getKey().wasPressed()) {
+				if (e.getKey().wasPressed()) {
 					e.getValue().run(client);
-					lockInput();
+					lockInput(e.getValue());
 					break;
 				}
 			}
@@ -64,6 +61,7 @@ public class ClientEndTickEvent {
 		for (Macro macro : macrosInLoop) macro.run(client, TickType.END);
 		macrosInLoop.clear();
 	}
-	public static void lockInput() { running = true; }
-	public static void unlockInput() { running = false; }
+	public static void lockInput(MacroString string) { running = string; }
+	public static void unlockInput() { running = null; }
+	public static MacroString getRunningMacro() { return running; }
 }

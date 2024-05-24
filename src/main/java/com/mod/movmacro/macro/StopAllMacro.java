@@ -38,6 +38,7 @@ public class StopAllMacro extends Macro {
 			case END -> {
 				this.resetTickDelta();
 				this.getParent().decrementRunning();
+				ClientEndTickEvent.unlockInput();
 				return;
 			}
 		}

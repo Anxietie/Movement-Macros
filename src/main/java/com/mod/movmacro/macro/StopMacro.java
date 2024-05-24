@@ -49,6 +49,8 @@ public class StopMacro extends Macro {
 		this.incrementTickDelta();
 	}
 
+	public int getId() { return this.id; }
+
 	@Override
 	public JsonElement getJsonValue() {
 		JsonObject json = new JsonObject();

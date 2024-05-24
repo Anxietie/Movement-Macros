@@ -1,0 +1,45 @@
+{
+	"inputs": [
+		{
+			"macro_type": "movement",
+			"movement_type": "jump",
+			"press_type": "tap",
+			"delay": 0,
+			"duration": 0
+		},
+		{
+			"macro_type": "movement",
+			"movement_type": "forward",
+			"press_type": "hold",
+			"delay": 1,
+			"duration": 0,
+			"id": 1
+		},
+		{
+			"macro_type": "movement",
+			"movement_type": "sprint",
+			"press_type": "tap",
+			"delay": 1,
+			"duration": 0
+		},
+		{
+			"macro_type": "stop",
+			"delay": 30,
+			"id": 1
+		}
+	],
+	"player_landing": {
+		"inputs": [
+			{
+				"macro_type": "movement",
+				"movement_type": "jump",
+				"press_type": "tap",
+				"delay": 0,
+				"duration": 0
+			}
+		]
+	},
+	"name": "Pessi 1t",
+	"enabled": true,
+	"trigger": "t"
+}
