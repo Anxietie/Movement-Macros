@@ -43,13 +43,15 @@ public class MovementMacro extends Macro {
 
 				switch (this.getPressType()) {
 					case HOLD_DURATION -> {
-						if (this.getTickDelta() - this.getDelay() >= duration)
+						if (this.getTickDelta() - this.getDelay() >= duration) {
 							ClientEndTickEvent.removeFromLoop(this);
+							input = false;
+						}
 					}
 					case TAP -> ClientEndTickEvent.removeFromLoop(this);
 				}
 
-				movementType.setPressed(input);
+				if (!movementType.isPressed()) movementType.setPressed(input);
 			}
 			case END -> {
 				movementType.setPressed(false);

@@ -27,42 +27,28 @@ public class EventMacro extends Macro {
 	public void run(MinecraftClient client, TickType tickType) {
 		switch (tickType) {
 			case START -> {
-				if ((mode == FireMode.ONCE || mode == FireMode.MANUAL) && ranCount >= fireCount) {
-					this.getParent().endEventMacro();
-					return;
-				}
-
-
 				ClientEndTickEvent.addToLoop(this);
+
+				macro.run(client);
+				++ranCount;
 			}
 			case TICK -> {
-				if (!ran) {
-					macro.run(client);
-					ran = true;
-					++ranCount;
-					return;
-				}
-
 				if (macro.isRunning())
 					return;
 
 				ClientEndTickEvent.removeFromLoop(this);
-
-				if (this.getParent().isRunning())
-					ClientEndTickEvent.lockInput(this.getParent());
+				ClientEndTickEvent.lockInput(this.getParent());
 			}
-			case END -> {
-				this.getParent().endEventMacro();
-
-				ran = false;
-			}
+			case END -> this.getParent().endEventMacro();
 		}
 	}
 
 	public EventType getEventType() { return this.eventType; }
 	public MacroString getMacro() { return this.macro; }
+	public String getMacroName() { return this.macroName; }
 	public void resetRanCount() { this.ranCount = 0; }
 	public void reloadMacro() { this.macro = MacroManager.getMacro(macroName); }
+	public boolean canRun() { return this.mode == FireMode.REPEAT || this.ranCount < this.fireCount; }
 
 	@Override
 	public JsonElement getJsonValue() {

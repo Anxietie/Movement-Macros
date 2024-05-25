@@ -31,6 +31,7 @@ public class StopMacro extends Macro {
 				}
 
 				ClientEndTickEvent.removeFromLoop(this.getParent().getById(this.id));
+				this.run(client, TickType.END);
 			}
 			case TICK -> {
 				if (this.getTickDelta() < this.getDelay())

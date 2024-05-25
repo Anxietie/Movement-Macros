@@ -3,6 +3,7 @@ package com.mod.movmacro.macro;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.MalformedJsonException;
 import com.mod.movmacro.events.ClientEndTickEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static com.mod.movmacro.MovementMacrosClient.MODID;
 import static com.mod.movmacro.MovementMacrosClient.LOGGER;
@@ -34,6 +36,8 @@ public class MacroManager {
 
 		File[] files = dir.listFiles();
 		if (files == null) return false;
+
+		// LOGGER.info(DEFAULT_MACRO);
 
 		/*
 		if (files.length == 0) {
@@ -58,8 +62,8 @@ public class MacroManager {
 				JsonReader reader = new JsonReader(new FileReader(f));
 				reader.setLenient(true);
 				string.setJsonValue(JsonParser.parseReader(reader).getAsJsonObject());
-
 				names.put(string.getName(), string);
+
 				if (string.isEnabled())
 					triggers.put(string.getKeybind(), string);
 
@@ -73,7 +77,6 @@ public class MacroManager {
 
 		for (MacroString string : names.values())
 			string.reloadEventMacros();
-
 		return true;
 	}
 

@@ -32,6 +32,7 @@ public enum MovementType {
 	}
 
 	public void setPressed(boolean pressed) { this.keybind.setPressed(pressed); }
+	public boolean isPressed() { return this.keybind.isPressed(); }
 
 	public JsonElement getJsonElement() { return new JsonPrimitive(this.name()); }
 }

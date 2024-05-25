@@ -28,6 +28,7 @@ public class StopAllMacro extends Macro {
 				}
 
 				ClientEndTickEvent.breakLoop();
+				this.run(client, TickType.END);
 			}
 			case TICK -> {
 				if (this.getTickDelta() < this.getDelay())
@@ -38,7 +39,6 @@ public class StopAllMacro extends Macro {
 			case END -> {
 				this.resetTickDelta();
 				this.getParent().decrementRunning();
-				ClientEndTickEvent.unlockInput();
 				return;
 			}
 		}

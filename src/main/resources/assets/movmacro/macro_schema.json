@@ -1,0 +1,99 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "movmacro.macro_schema",
+	"title": "Macro",
+	"description": "A movement macro",
+	"type": "object",
+	"properties": {
+		"inputs": {
+			"type": "array",
+			"description": "The series of keybinds to input when this macro is triggered",
+			"items": {
+				"type": "object",
+				"properties": {
+					"macro_type": {
+						"type": "string",
+						"enum": [
+							"movement",
+							"camera",
+							"event",
+							"stop",
+							"stop_all"
+						]
+					},
+					"movement_type": {
+						"type": "string",
+						"enum": [
+							"forward",
+							"left",
+							"back",
+							"right",
+							"jump",
+							"sprint",
+							"sneak"
+						]
+					},
+					"press_type": {
+						"type": "string",
+						"enum": [
+							"tap",
+							"hold_duration",
+							"hold"
+						]
+					},
+					"event_type": {
+						"type": "string",
+						"enum": [
+							"player_land"
+						]
+					},
+					"macro": {
+						"type": "string"
+					},
+					"fire_mode": {
+						"type": "string",
+						"enum": [
+							"once",
+							"manual",
+							"repeat"
+						]
+					},
+					"angle": {
+						"type": "number",
+						"multipleOf": 0.01
+					},
+					"count": {
+						"type": "integer"
+					},
+					"delay": {
+						"type": "integer"
+					},
+					"duration": {
+						"type": "integer"
+					}
+				},
+				"required": [
+					"macro_type"
+				]
+			}
+		},
+		"name": {
+			"type": "string",
+			"description": "Name of this macro, used for event macros"
+		},
+		"enabled": {
+			"type": "boolean",
+			"description": "Whether this macro should run when triggered or not"
+		},
+		"trigger": {
+			"type": "string",
+			"description": "The keybind used to run this macro, must be a letter, no 2 enabled macros can have the same trigger key"
+		}
+	},
+	"required": [
+		"inputs",
+		"name",
+		"enabled",
+		"trigger"
+	]
+}

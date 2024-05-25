@@ -32,6 +32,7 @@ public class CameraTurnMacro extends Macro {
 
 				if (client.player != null)
 					client.player.setYaw((float) (client.player.getYaw() + angle));
+				this.run(client, TickType.END);
 			}
 			case TICK -> {
 				if (this.getTickDelta() < this.getDelay())

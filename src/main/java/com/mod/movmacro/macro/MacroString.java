@@ -3,7 +3,6 @@ package com.mod.movmacro.macro;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.mod.movmacro.events.ClientEndTickEvent;
 import com.mod.movmacro.macro.types.EventType;
 import com.mod.movmacro.macro.types.MacroType;
@@ -21,7 +20,7 @@ import java.util.*;
 @Environment(EnvType.CLIENT)
 public class MacroString {
 	// private final MacroString parent = new MacroString();
-	private final LinkedList<Macro> macros = new LinkedList<>();
+	private final List<Macro> macros = new ArrayList<>();
 	private final Map<EventType, EventMacro> eventMacros = new HashMap<>();
 	private final Map<Integer, Macro> stops = new HashMap<>();
 	private int running = 0;
@@ -48,7 +47,11 @@ public class MacroString {
 
 	public void runEventMacro(MinecraftClient client, EventType eventType) {
 		EventMacro macro = eventMacros.get(eventType);
-		if (macro != null && macro.getMacro().canRun()) {
+		if (macro == null) return;
+		if (!macro.canRun())
+			return;
+
+		if (!macro.getMacro().isRunning()) {
 			macro.run(client, TickType.START);
 			++runningEvent;
 			incrementRunning();
@@ -59,16 +62,14 @@ public class MacroString {
 	public void incrementRunning() { ++this.running; }
 	public void decrementRunning() {
 		--this.running;
-		if (canRun() && runningEvent == 0) {
+		if (!this.isRunning() && runningEvent == 0) {
 			ClientEndTickEvent.unlockInput();
-			eventMacros.values().forEach(EventMacro::resetRanCount);
+			this.eventMacros.values().forEach(EventMacro::resetRanCount);
 		}
 	}
-	public boolean canRun() { return this.running == 0; }
 	public boolean isRunning() { return this.running > 0; }
-	public boolean hasEventMacros() { return !this.eventMacros.values().isEmpty(); }
 	public String getName() { return this.name; }
-	public LinkedList<Macro> getMacros() { return this.macros; }
+	public List<Macro> getMacros() { return this.macros; }
 	public KeyBinding getKeybind() { return this.trigger; }
 	public void endEventMacro() {
 		--runningEvent;
@@ -77,9 +78,16 @@ public class MacroString {
 	public void putById(int id, Macro macro) { stops.put(id, macro); }
 	public Macro getById(int id) { return stops.get(id); }
 	public void reloadEventMacros() {
-		for (EventMacro macro : eventMacros.values())
+		for (EventMacro macro : eventMacros.values()) {
 			macro.reloadMacro();
+			macro.getMacro().updateStops(this.stops); // have to do this AFTER reloading macro so the macrostring is actually present (not null)
+		}
 	}
+	public void updateStops(Map<Integer, Macro> stops) {
+		for (Map.Entry<Integer, Macro> e : stops.entrySet())
+			this.stops.putIfAbsent(e.getKey(), e.getValue());
+	}
+	public Collection<EventMacro> getEventMacros() { return this.eventMacros.values(); }
 
 	/*
 	public JsonObject getJsonValue() {
