@@ -1,6 +1,5 @@
 package com.mod.movmacro.events;
 
-import com.mod.movmacro.macro.MacroManager;
 import com.mod.movmacro.macro.Macro;
 import com.mod.movmacro.macro.MacroString;
 import com.mod.movmacro.macro.types.TickType;
@@ -9,11 +8,9 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ChatScreen;
-import net.minecraft.client.option.KeyBinding;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 // thanks https://github.com/DanilMK/macrofactory
 
@@ -42,15 +39,8 @@ public class ClientEndTickEvent {
 			for (Macro macro : List.copyOf(macrosInLoop)) // avoid concurrent modification exception
 				macro.run(client, TickType.TICK);
 
-			if (running != null) return;
-
-			for (Map.Entry<KeyBinding, MacroString> e : MacroManager.triggers.entrySet()) {
-				if (e.getKey().wasPressed()) {
-					e.getValue().run(client);
-					lockInput(e.getValue());
-					break;
-				}
-			}
+			if (isRunning())
+				running.incrementTickDelta();
 		});
 	}
 
@@ -63,5 +53,6 @@ public class ClientEndTickEvent {
 	}
 	public static void lockInput(MacroString string) { running = string; }
 	public static void unlockInput() { running = null; }
+	public static boolean isRunning() { return running != null; }
 	public static MacroString getRunningMacro() { return running; }
 }

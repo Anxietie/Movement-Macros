@@ -2,7 +2,6 @@ package com.mod.movmacro.macro;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.mod.movmacro.events.ClientEndTickEvent;
 import com.mod.movmacro.macro.types.MacroType;
 import com.mod.movmacro.macro.types.PressType;
@@ -34,31 +33,14 @@ public class StopMacro extends Macro {
 				this.run(client, TickType.END);
 			}
 			case TICK -> {
-				if (this.getTickDelta() < this.getDelay())
+				if (this.getParent().getTickDelta() < this.getDelay())
 					break;
 
 				this.getParent().getById(this.id).stop(client);
 				ClientEndTickEvent.removeFromLoop(this);
 			}
-			case END -> {
-				this.resetTickDelta();
-				this.getParent().decrementRunning();
-				return;
-			}
+			case END -> this.getParent().decrementRunning();
 		}
-
-		this.incrementTickDelta();
-	}
-
-	public int getId() { return this.id; }
-
-	@Override
-	public JsonElement getJsonValue() {
-		JsonObject json = new JsonObject();
-		json.add("macro_type", this.getMacroType().getJsonElement());
-		json.add("delay", new JsonPrimitive(this.getDelay()));
-		json.add("id", new JsonPrimitive(this.id));
-		return json;
 	}
 
 	@Override

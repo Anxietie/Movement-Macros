@@ -7,6 +7,7 @@ import com.mod.movmacro.events.ClientEndTickEvent;
 import com.mod.movmacro.macro.types.EventType;
 import com.mod.movmacro.macro.types.MacroType;
 import com.mod.movmacro.macro.types.TickType;
+import com.mod.movmacro.macro.hotkey.Hotkey;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -19,7 +20,6 @@ import java.util.*;
 
 @Environment(EnvType.CLIENT)
 public class MacroString {
-	// private final MacroString parent = new MacroString();
 	private final List<Macro> macros = new ArrayList<>();
 	private final Map<EventType, EventMacro> eventMacros = new HashMap<>();
 	private final Map<Integer, Macro> stops = new HashMap<>();
@@ -27,15 +27,8 @@ public class MacroString {
 	private int runningEvent = 0;
 	private String name;
 	private boolean enabled = true;
-	private KeyBinding trigger;
+	private int tickDelta = 0;
 
-	public MacroString(String name, Macro... macros) {
-		this.name = name;
-		for (Macro macro : macros) {
-			macro.setParent(this);
-			this.macros.add(macro);
-		}
-	}
 	public MacroString() {}
 
 	public void run(MinecraftClient client) {
@@ -43,6 +36,8 @@ public class MacroString {
 			this.incrementRunning();
 			macro.run(client, TickType.START);
 		}
+
+		incrementTickDelta();
 	}
 
 	public void runEventMacro(MinecraftClient client, EventType eventType) {
@@ -58,19 +53,18 @@ public class MacroString {
 		}
 	}
 
-	public boolean isEnabled() { return this.enabled; }
 	public void incrementRunning() { ++this.running; }
 	public void decrementRunning() {
 		--this.running;
 		if (!this.isRunning() && runningEvent == 0) {
-			ClientEndTickEvent.unlockInput();
+			if (ClientEndTickEvent.getRunningMacro().equals(this))
+				ClientEndTickEvent.unlockInput();
+			resetTickDelta();
 			this.eventMacros.values().forEach(EventMacro::resetRanCount);
 		}
 	}
 	public boolean isRunning() { return this.running > 0; }
 	public String getName() { return this.name; }
-	public List<Macro> getMacros() { return this.macros; }
-	public KeyBinding getKeybind() { return this.trigger; }
 	public void endEventMacro() {
 		--runningEvent;
 		decrementRunning();
@@ -87,30 +81,23 @@ public class MacroString {
 		for (Map.Entry<Integer, Macro> e : stops.entrySet())
 			this.stops.putIfAbsent(e.getKey(), e.getValue());
 	}
-	public Collection<EventMacro> getEventMacros() { return this.eventMacros.values(); }
-
-	/*
-	public JsonObject getJsonValue() {
-		JsonArray array = new JsonArray();
-		for (Macro macro : eventMacros.values()) array.add(macro.getJsonValue());
-		for (Macro macro : macros) array.add(macro.getJsonValue());
-
-		JsonObject json = new JsonObject();
-		json.add("inputs", array);
-		json.add("name", new JsonPrimitive(this.name));
-		json.add("enabled", new JsonPrimitive(this.enabled));
-		String key = InputUtil.fromTranslationKey(trigger.getTranslationKey()).toString().substring("key.keyboard.".length());
-		json.add("trigger", new JsonPrimitive(key));
-		return json;
-	}
-	 */
+	public int getTickDelta() { return this.tickDelta; }
+	public void incrementTickDelta() { ++this.tickDelta; }
+	public void resetTickDelta() { this.tickDelta = 0; }
 
 	public void setJsonValue(JsonElement element) {
 		JsonObject json = element.getAsJsonObject();
 		name = json.get("name").getAsString();
 		enabled = json.get("enabled").getAsBoolean();
 		String translationKey = "key.keyboard." + json.get("trigger").getAsString();
-		trigger = new KeyBinding("key." + json.get("trigger").getAsString(), InputUtil.fromTranslationKey(translationKey).getCode(), KeyBinding.MISC_CATEGORY);
+
+		Hotkey trigger = new Hotkey("key." + json.get("trigger").getAsString(), InputUtil.fromTranslationKey(translationKey).getCode(), KeyBinding.MISC_CATEGORY);
+		trigger.setCallback(() -> {
+			if (!ClientEndTickEvent.isRunning() && enabled) {
+				this.run(MinecraftClient.getInstance());
+				ClientEndTickEvent.lockInput(this);
+			}
+		});
 
 		JsonArray inputs = json.getAsJsonArray("inputs");
 

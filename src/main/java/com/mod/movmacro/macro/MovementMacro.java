@@ -2,7 +2,6 @@ package com.mod.movmacro.macro;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.mod.movmacro.events.ClientEndTickEvent;
 import com.mod.movmacro.macro.types.MacroType;
 import com.mod.movmacro.macro.types.MovementType;
@@ -36,14 +35,14 @@ public class MovementMacro extends Macro {
 					movementType.setPressed(true);
 			}
 			case TICK -> {
-				if (this.getTickDelta() < this.getDelay())
+				if (this.getParent().getTickDelta() < this.getDelay())
 					break;
 
 				boolean input = true;
 
 				switch (this.getPressType()) {
 					case HOLD_DURATION -> {
-						if (this.getTickDelta() - this.getDelay() >= duration) {
+						if (this.getParent().getTickDelta() - this.getDelay() >= duration) {
 							ClientEndTickEvent.removeFromLoop(this);
 							input = false;
 						}
@@ -55,30 +54,15 @@ public class MovementMacro extends Macro {
 			}
 			case END -> {
 				movementType.setPressed(false);
-				this.resetTickDelta();
 				this.getParent().decrementRunning();
-				return;
 			}
 		}
-
-		this.incrementTickDelta();
 	}
 
 	// for tick precision timing
 	public void stop(MinecraftClient client) {
 		movementType.setPressed(false);
 		super.stop(client);
-	}
-
-	@Override
-	public JsonElement getJsonValue() {
-		JsonObject json = new JsonObject();
-		json.add("macro_type", this.getMacroType().getJsonElement());
-		json.add("movement_type", movementType.getJsonElement());
-		json.add("press_type", this.getPressType().getJsonElement());
-		json.add("delay", new JsonPrimitive(this.getDelay()));
-		json.add("duration", new JsonPrimitive(duration));
-		return json;
 	}
 
 	@Override

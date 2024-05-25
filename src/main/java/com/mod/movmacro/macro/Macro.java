@@ -15,7 +15,6 @@ public abstract class Macro {
 	private final MacroType macroType;
 	private PressType pressType;
 	private int delay;
-	private int tickDelta = 0;
 
 	public Macro(MacroType macroType, PressType pressType, int delay) {
 		this.macroType = macroType;
@@ -27,7 +26,6 @@ public abstract class Macro {
 	public MacroString getParent() { return this.parent; }
 
 	public abstract void run(MinecraftClient client, TickType tickType);
-	public abstract JsonElement getJsonValue();
 	public abstract void setJsonValue(JsonElement element);
 
 	public void setPressType(PressType pressType) { this.pressType = pressType; }
@@ -35,9 +33,6 @@ public abstract class Macro {
 	MacroType getMacroType() { return this.macroType; }
 	PressType getPressType() { return this.pressType; }
 
-	public int getTickDelta() { return this.tickDelta; }
-	public void incrementTickDelta() { ++this.tickDelta; }
-	public void resetTickDelta() { this.tickDelta = 0; }
 	public int getDelay() { return this.delay; }
 	public void setDelay(int delay) { this.delay = delay; }
 

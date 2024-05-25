@@ -1,15 +1,11 @@
 package com.mod.movmacro.macro;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.MalformedJsonException;
 import com.mod.movmacro.events.ClientEndTickEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.option.KeyBinding;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
@@ -17,17 +13,14 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import static com.mod.movmacro.MovementMacrosClient.MODID;
 import static com.mod.movmacro.MovementMacrosClient.LOGGER;
 
 @Environment(EnvType.CLIENT)
 public class MacroManager {
-	public static final Map<KeyBinding, MacroString> triggers = new HashMap<>();
 	public static final Map<String, MacroString> names = new HashMap<>();
 	private static final String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toString() + File.separator + MODID;
-	// private static final String DEFAULT_MACRO = FabricLoader.getInstance().getModContainer(MODID).get().findPath("resources\\main\\assets\\movmacro\\hh.json").get().toString();
 
 	public static boolean load() {
 		File dir = new File(CONFIG_DIR);
@@ -36,22 +29,6 @@ public class MacroManager {
 
 		File[] files = dir.listFiles();
 		if (files == null) return false;
-
-		// LOGGER.info(DEFAULT_MACRO);
-
-		/*
-		if (files.length == 0) {
-			try {
-				File src = new File(DEFAULT_MACRO);
-				FileUtils.copyToDirectory(src, dir);
-				return reload();
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-				return false;
-			}
-		}
-		 */
 
 		try {
 			for (File f : files) {
@@ -64,14 +41,11 @@ public class MacroManager {
 				string.setJsonValue(JsonParser.parseReader(reader).getAsJsonObject());
 				names.put(string.getName(), string);
 
-				if (string.isEnabled())
-					triggers.put(string.getKeybind(), string);
-
 				reader.close();
 			}
 		}
 		catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error("IOException thrown while loading macros in movmacro!", e);
 			return false;
 		}
 
@@ -82,7 +56,6 @@ public class MacroManager {
 
 	public static boolean reload() {
 		ClientEndTickEvent.breakLoop(); // break loop first lol
-		triggers.clear();
 		return load();
 	}
 

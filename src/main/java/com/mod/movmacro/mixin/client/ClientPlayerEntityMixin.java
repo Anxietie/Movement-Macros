@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(ClientPlayerEntity.class)
-public class ClientPlayerEntityMixin extends PlayerEntity {
+public abstract class ClientPlayerEntityMixin extends PlayerEntity {
 	@Unique
 	private boolean falling = false;
 

@@ -2,7 +2,6 @@ package com.mod.movmacro.macro;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.mod.movmacro.events.ClientEndTickEvent;
 import com.mod.movmacro.macro.types.*;
 import net.minecraft.client.MinecraftClient;
@@ -14,7 +13,6 @@ public class EventMacro extends Macro {
 	private FireMode mode;
 	private int fireCount = 1;
 	private int ranCount = 0;
-	private boolean ran = false;
 
 	public EventMacro(EventType eventType, FireMode fireMode) {
 		super(MacroType.EVENT, PressType.TAP, 0);
@@ -33,31 +31,25 @@ public class EventMacro extends Macro {
 				++ranCount;
 			}
 			case TICK -> {
-				if (macro.isRunning())
+				if (macro.isRunning()) {
+					macro.incrementTickDelta();
 					return;
+				}
 
 				ClientEndTickEvent.removeFromLoop(this);
-				ClientEndTickEvent.lockInput(this.getParent());
 			}
-			case END -> this.getParent().endEventMacro();
+			case END -> {
+				this.getParent().endEventMacro();
+				macro.resetTickDelta();
+			}
 		}
 	}
 
 	public EventType getEventType() { return this.eventType; }
 	public MacroString getMacro() { return this.macro; }
-	public String getMacroName() { return this.macroName; }
 	public void resetRanCount() { this.ranCount = 0; }
 	public void reloadMacro() { this.macro = MacroManager.getMacro(macroName); }
 	public boolean canRun() { return this.mode == FireMode.REPEAT || this.ranCount < this.fireCount; }
-
-	@Override
-	public JsonElement getJsonValue() {
-		JsonObject json = new JsonObject();
-		json.add("macro_type", this.getMacroType().getJsonElement());
-		json.add("event_type", eventType.getJsonElement());
-		json.add("macro", new JsonPrimitive(macro.getName()));
-		return null;
-	}
 
 	@Override
 	public void setJsonValue(JsonElement element) {
