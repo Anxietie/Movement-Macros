@@ -30,14 +30,14 @@ public class StopMacro extends Macro {
 					break;
 				}
 
-				ClientEndTickEvent.removeFromLoop(this.getParent().getById(this.id));
+				this.getParent().getById(this.id).stop(client);
 				this.run(client, TickType.END);
 			}
 			case TICK -> {
 				if (this.getTickDelta() < this.getDelay())
 					break;
 
-				ClientEndTickEvent.removeFromLoop(this.getParent().getById(this.id));
+				this.getParent().getById(this.id).stop(client);
 				ClientEndTickEvent.removeFromLoop(this);
 			}
 			case END -> {

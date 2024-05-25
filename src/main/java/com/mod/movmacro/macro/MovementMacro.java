@@ -64,6 +64,12 @@ public class MovementMacro extends Macro {
 		this.incrementTickDelta();
 	}
 
+	// for tick precision timing
+	public void stop(MinecraftClient client) {
+		movementType.setPressed(false);
+		super.stop(client);
+	}
+
 	@Override
 	public JsonElement getJsonValue() {
 		JsonObject json = new JsonObject();
