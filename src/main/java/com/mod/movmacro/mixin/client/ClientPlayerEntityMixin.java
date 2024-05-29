@@ -21,12 +21,13 @@ public abstract class ClientPlayerEntityMixin extends PlayerEntity {
 	private boolean falling = false;
 
 	@Inject(method = "tickMovement", at = @At("TAIL"))
-	private void tickMovement(CallbackInfo ci) {
+	private void movmacro$landEventInvoker(CallbackInfo ci) {
 		if (!canFall(this))
 			return;
 
 		if (this.isOnGround()) {
 			if (this.falling) {
+				//noinspection deprecation
 				ClientPlayerLandingEvent.EVENT.invoker().interact(this, this.getLandingPos());
 				this.falling = false;
 			}

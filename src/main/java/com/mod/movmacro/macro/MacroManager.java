@@ -20,6 +20,7 @@ import static com.mod.movmacro.MovementMacrosClient.LOGGER;
 @Environment(EnvType.CLIENT)
 public class MacroManager {
 	public static final Map<String, MacroString> names = new HashMap<>();
+	public static MacroString cache = null;
 	private static final String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toString() + File.separator + MODID;
 
 	public static boolean load() {
@@ -49,8 +50,6 @@ public class MacroManager {
 			return false;
 		}
 
-		for (MacroString string : names.values())
-			string.reloadEventMacros();
 		return true;
 	}
 

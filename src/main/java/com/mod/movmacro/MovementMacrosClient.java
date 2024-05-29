@@ -1,9 +1,6 @@
 package com.mod.movmacro;
 
-import com.mod.movmacro.events.ClientCommandRegisterEvent;
-import com.mod.movmacro.events.ClientPlayerLandingEvent;
-import com.mod.movmacro.events.ClientStartEvent;
-import com.mod.movmacro.events.ClientEndTickEvent;
+import com.mod.movmacro.events.*;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -21,10 +18,11 @@ public class MovementMacrosClient implements ClientModInitializer {
 		ClientEndTickEvent.register();
 		ClientCommandRegisterEvent.register();
 		ClientPlayerLandingEvent.register();
+		ClientPlayerJumpEvent.register();
 
 		/* TODO:
-		 * add triggered stops (either by keybind or using ids)
-		 * make more memory efficient lol this thing uses so much memory
+		 * add debug mode
+		 * add more events
 		 */
 	}
 }

@@ -21,7 +21,7 @@ import java.util.*;
 @Environment(EnvType.CLIENT)
 public class MacroString {
 	private final List<Macro> macros = new ArrayList<>();
-	private final Map<EventType, EventMacro> eventMacros = new HashMap<>();
+	private final Map<EventType, Queue<EventMacro>> eventMacros = new HashMap<>();
 	private final Map<Integer, Macro> stops = new HashMap<>();
 	private int running = 0;
 	private int runningEvent = 0;
@@ -41,7 +41,13 @@ public class MacroString {
 	}
 
 	public void runEventMacro(MinecraftClient client, EventType eventType) {
-		EventMacro macro = eventMacros.get(eventType);
+		if (!this.equals(MacroManager.cache)) {
+			this.reloadEventMacros();
+			MacroManager.cache = this;
+		}
+
+		EventMacro macro = eventMacros.get(eventType).poll();
+		eventMacros.get(eventType).add(macro);
 		if (macro == null) return;
 		if (!macro.canRun())
 			return;
@@ -60,7 +66,7 @@ public class MacroString {
 			if (ClientEndTickEvent.getRunningMacro().equals(this))
 				ClientEndTickEvent.unlockInput();
 			resetTickDelta();
-			this.eventMacros.values().forEach(EventMacro::resetRanCount);
+			this.eventMacros.values().forEach(q -> q.forEach(EventMacro::resetRanCount));
 		}
 	}
 	public boolean isRunning() { return this.running > 0; }
@@ -72,15 +78,14 @@ public class MacroString {
 	public void putById(int id, Macro macro) { stops.put(id, macro); }
 	public Macro getById(int id) { return stops.get(id); }
 	public void reloadEventMacros() {
-		for (EventMacro macro : eventMacros.values()) {
-			macro.reloadMacro();
-			macro.getMacro().updateStops(this.stops); // have to do this AFTER reloading macro so the macrostring is actually present (not null)
+		for (Queue<EventMacro> q : eventMacros.values()) {
+			for (EventMacro macro : q) {
+				macro.reloadMacro();
+				macro.getMacro().updateStops(this.stops); // have to do this AFTER reloading macro so the macrostring is actually present (not null)
+			}
 		}
 	}
-	public void updateStops(Map<Integer, Macro> stops) {
-		for (Map.Entry<Integer, Macro> e : stops.entrySet())
-			this.stops.putIfAbsent(e.getKey(), e.getValue());
-	}
+	public void updateStops(Map<Integer, Macro> stops) { this.stops.putAll(stops); }
 	public int getTickDelta() { return this.tickDelta; }
 	public void incrementTickDelta() { ++this.tickDelta; }
 	public void resetTickDelta() { this.tickDelta = 0; }
@@ -91,20 +96,24 @@ public class MacroString {
 		enabled = json.get("enabled").getAsBoolean();
 		String translationKey = "key.keyboard." + json.get("trigger").getAsString();
 
-		Hotkey trigger = new Hotkey("key." + json.get("trigger").getAsString(), InputUtil.fromTranslationKey(translationKey).getCode(), KeyBinding.MISC_CATEGORY);
-		trigger.setCallback(() -> {
-			if (!ClientEndTickEvent.isRunning() && enabled) {
-				this.run(MinecraftClient.getInstance());
-				ClientEndTickEvent.lockInput(this);
-			}
-		});
+		if (enabled) {
+			Hotkey trigger = new Hotkey("key." + json.get("trigger").getAsString(), InputUtil.fromTranslationKey(translationKey).getCode(), KeyBinding.MISC_CATEGORY);
+			trigger.setCallback(() -> {
+				if (!ClientEndTickEvent.isRunning() && this.enabled) {
+					this.run(MinecraftClient.getInstance());
+					ClientEndTickEvent.lockInput(this);
+				}
+			});
+		}
 
 		JsonArray inputs = json.getAsJsonArray("inputs");
 
 		for (JsonElement e : inputs) {
 			Macro macro = createMacroFromJson(e, this);
 			if (macro instanceof EventMacro eventMacro) {
-				eventMacros.put(eventMacro.getEventType(), eventMacro);
+				Queue<EventMacro> q = eventMacros.getOrDefault(eventMacro.getEventType(), new LinkedList<>());
+				q.add(eventMacro);
+				eventMacros.put(eventMacro.getEventType(), q);
 				continue;
 			}
 			this.macros.add(macro);
