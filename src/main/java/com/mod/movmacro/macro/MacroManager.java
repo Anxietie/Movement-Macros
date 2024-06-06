@@ -6,6 +6,7 @@ import com.mod.movmacro.events.ClientEndTickEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
@@ -22,11 +23,22 @@ public class MacroManager {
 	public static final Map<String, LinkedList<Float>> ANGLE_FILES = new HashMap<>();
 	public static MacroString cache = null;
 	private static final String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toString() + File.separator + MODID;
+	@SuppressWarnings("OptionalGetWithoutIsPresent")
+	public static final String EXAMPLES_DIR = FabricLoader.getInstance().getModContainer(MODID).get().findPath("example").get().toString();
 
 	public static boolean load() {
 		File dir = new File(CONFIG_DIR);
-		if (!dir.exists() && !dir.mkdir())
-			return false;
+		if (!dir.exists()) {
+			if (!dir.mkdir())
+				return false;
+
+			try {
+				copyExampleMacros(dir);
+			}
+			catch (IOException e) {
+				LOGGER.error("Failed to copy example files to config directory", e);
+			}
+		}
 
 		File[] files = dir.listFiles();
 		if (files == null) return false;
@@ -56,6 +68,16 @@ public class MacroManager {
 		}
 
 		return true;
+	}
+
+	private static void copyExampleMacros(File configDir) throws IOException {
+		File examplesDir = new File(EXAMPLES_DIR);
+		File[] files = examplesDir.listFiles();
+		if (files == null)
+			return;
+
+		for (File f : files)
+			FileUtils.copyToDirectory(f, configDir);
 	}
 
 	private static Map.Entry<String, MacroString> processMacroString(File f) throws IOException {

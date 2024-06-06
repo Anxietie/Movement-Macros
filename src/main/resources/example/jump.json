@@ -1,0 +1,14 @@
+{
+	"inputs": [
+		{
+			"macro_type": "movement",
+			"movement_type": "jump",
+			"press_type": "tap",
+			"delay": 0,
+			"duration": 0
+		}
+	],
+	"name": "Jump",
+	"enabled": false,
+	"trigger": "n"
+}
