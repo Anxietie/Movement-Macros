@@ -8,10 +8,9 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import org.apache.commons.io.FilenameUtils;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import static com.mod.movmacro.MovementMacrosClient.MODID;
@@ -19,7 +18,8 @@ import static com.mod.movmacro.MovementMacrosClient.LOGGER;
 
 @Environment(EnvType.CLIENT)
 public class MacroManager {
-	public static final Map<String, MacroString> names = new HashMap<>();
+	public static final Map<String, MacroString> MACRO_NAMES = new HashMap<>();
+	public static final Map<String, LinkedList<Float>> ANGLE_FILES = new HashMap<>();
 	public static MacroString cache = null;
 	private static final String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toString() + File.separator + MODID;
 
@@ -33,16 +33,21 @@ public class MacroManager {
 
 		try {
 			for (File f : files) {
-				if (!FilenameUtils.getExtension(f.getName()).equalsIgnoreCase("json"))
+				String fextension = FilenameUtils.getExtension(f.getName());
+				if (fextension.equalsIgnoreCase("macro")) {
+					Map.Entry<String, LinkedList<Float>> e = processAngleFile(f);
+					if (e == null)
+						continue;
+
+					ANGLE_FILES.put(e.getKey(), e.getValue());
+					continue;
+				}
+
+				if (!fextension.equalsIgnoreCase("json"))
 					continue;
 
-				MacroString string = new MacroString();
-				JsonReader reader = new JsonReader(new FileReader(f));
-				reader.setLenient(true);
-				string.setJsonValue(JsonParser.parseReader(reader).getAsJsonObject());
-				names.put(string.getName(), string);
-
-				reader.close();
+				Map.Entry<String, MacroString> e = processMacroString(f);
+				MACRO_NAMES.put(e.getKey(), e.getValue());
 			}
 		}
 		catch (IOException e) {
@@ -53,10 +58,49 @@ public class MacroManager {
 		return true;
 	}
 
+	private static Map.Entry<String, MacroString> processMacroString(File f) throws IOException {
+		MacroString string = new MacroString();
+		JsonReader jreader = new JsonReader(new FileReader(f));
+		jreader.setLenient(true);
+		string.setJsonValue(JsonParser.parseReader(jreader).getAsJsonObject());
+		jreader.close();
+		return Map.entry(string.getName(), string);
+	}
+
+	private static Map.Entry<String, LinkedList<Float>> processAngleFile(File f) throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader(f));
+		String line = br.readLine();
+
+		if (line == null || !line.matches("MOVMACRO:(.*)"))
+			return null;
+
+		String name = line.substring(line.indexOf(':') + 1).trim();
+		line = br.readLine();
+
+		LinkedList<Float> angles = new LinkedList<>();
+		while (line != null) {
+			line = line.trim();
+
+			if (line.isBlank() || line.charAt(0) == '#') {
+				line = br.readLine();
+				continue;
+			}
+
+			angles.add(Float.parseFloat(line));
+			line = br.readLine();
+		}
+
+		br.close();
+		return Map.entry(name, angles);
+	}
+
 	public static boolean reload() {
 		ClientEndTickEvent.breakLoop(); // break loop first lol
+		MACRO_NAMES.clear();
+		ANGLE_FILES.clear();
 		return load();
 	}
 
-	public static MacroString getMacro(String name) { return names.get(name); }
+	public static MacroString getMacro(String name) { return MACRO_NAMES.get(name); }
+	public static LinkedList<Float> getAngleFile(String name) { return ANGLE_FILES.get(name); }
 }

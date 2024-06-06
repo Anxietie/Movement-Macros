@@ -1,0 +1,19 @@
+MOVMACRO:example
+
+# header must at be the first line and of the form "MOVMACRO:<name>" else it will be skipped during loading
+
+# this is a comment
+# lines preceded by a hashtag are skipped
+# blank lines are ignored
+
+# float
+9.0
+
+# int
+9
+
+9
+9
+9
+
+# this will linearly turn the camera by 45° in 5 ticks

@@ -1,0 +1,19 @@
+{
+	"inputs": [
+		{
+			"macro_type": "stop",
+			"delay": 0,
+			"id": 0
+		},
+		{
+			"macro_type": "movement",
+			"movement_type": "sneak",
+			"press_type": "hold_duration",
+			"delay": 0,
+			"duration": 10
+		}
+	],
+	"name": "Safe Land",
+	"enabled": false,
+	"trigger": "t"
+}

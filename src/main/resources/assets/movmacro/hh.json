@@ -1,12 +1,18 @@
 {
 	"inputs": [
 		{
+			"macro_type": "event",
+			"event_type": "player_land",
+			"macro": "Safe Land",
+			"fire_mode": "once"
+		},
+		{
 			"macro_type": "movement",
 			"movement_type": "forward",
 			"press_type": "hold",
 			"delay": 0,
 			"duration": 0,
-			"id": 1
+			"id": 0
 		},
 		{
 			"macro_type": "movement",
@@ -21,14 +27,9 @@
 			"press_type": "tap",
 			"delay": 1,
 			"duration": 0
-		},
-		{
-			"macro_type": "stop",
-			"delay": 12,
-			"id": 1
 		}
 	],
-	"name": "HH Macro",
+	"name": "HH",
 	"enabled": true,
 	"trigger": "n"
 }

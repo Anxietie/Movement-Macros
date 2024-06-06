@@ -22,7 +22,7 @@ public class MovementMacrosClient implements ClientModInitializer {
 
 		/* TODO:
 		 * add debug mode
-		 * add more events
+		 * make camera macro better
 		 */
 	}
 }

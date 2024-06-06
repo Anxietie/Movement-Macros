@@ -46,7 +46,11 @@ public class MacroString {
 			MacroManager.cache = this;
 		}
 
-		EventMacro macro = eventMacros.get(eventType).poll();
+		Queue<EventMacro> q = eventMacros.get(eventType);
+		if (q == null)
+			return;
+
+		EventMacro macro = q.poll();
 		eventMacros.get(eventType).add(macro);
 		if (macro == null) return;
 		if (!macro.canRun())
@@ -63,7 +67,7 @@ public class MacroString {
 	public void decrementRunning() {
 		--this.running;
 		if (!this.isRunning() && runningEvent == 0) {
-			if (ClientEndTickEvent.getRunningMacro().equals(this))
+			if (this.equals(ClientEndTickEvent.getRunningMacro()))
 				ClientEndTickEvent.unlockInput();
 			resetTickDelta();
 			this.eventMacros.values().forEach(q -> q.forEach(EventMacro::resetRanCount));
@@ -100,8 +104,8 @@ public class MacroString {
 			Hotkey trigger = new Hotkey("key." + json.get("trigger").getAsString(), InputUtil.fromTranslationKey(translationKey).getCode(), KeyBinding.MISC_CATEGORY);
 			trigger.setCallback(() -> {
 				if (!ClientEndTickEvent.isRunning() && this.enabled) {
-					this.run(MinecraftClient.getInstance());
 					ClientEndTickEvent.lockInput(this);
+					this.run(MinecraftClient.getInstance());
 				}
 			});
 		}
@@ -126,7 +130,7 @@ public class MacroString {
 
 		macro = switch (type) {
 			case MOVEMENT -> new MovementMacro();
-			case CAMERA -> new CameraTurnMacro();
+			case CAMERA -> new CameraMacro();
 			case STOP -> new StopMacro();
 			case STOP_ALL -> new StopAllMacro();
 			case EVENT -> new EventMacro();
