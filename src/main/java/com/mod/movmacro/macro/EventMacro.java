@@ -4,8 +4,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.mod.movmacro.events.ClientEndTickEvent;
 import com.mod.movmacro.macro.types.*;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 
+@Environment(EnvType.CLIENT)
 public class EventMacro extends Macro {
 	private EventType eventType;
 	private MacroString macro = new MacroString();
@@ -39,7 +42,7 @@ public class EventMacro extends Macro {
 				ClientEndTickEvent.removeFromLoop(this);
 			}
 			case END -> {
-				this.getParent().endEventMacro();
+				this.getParent().endEventMacro(this);
 				macro.resetTickDelta();
 			}
 		}

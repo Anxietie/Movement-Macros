@@ -35,7 +35,7 @@ public class StopAllMacro extends Macro {
 
 				ClientEndTickEvent.breakLoop();
 			}
-			case END -> this.getParent().decrementRunning();
+			case END -> this.getParent().decrementRunning(this);
 		}
 	}
 

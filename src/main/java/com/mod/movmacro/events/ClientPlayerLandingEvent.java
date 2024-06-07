@@ -1,5 +1,6 @@
 package com.mod.movmacro.events;
 
+import com.mod.movmacro.macro.MacroManager;
 import com.mod.movmacro.macro.MacroString;
 import com.mod.movmacro.macro.types.EventType;
 import net.fabricmc.api.EnvType;
@@ -22,9 +23,17 @@ public interface ClientPlayerLandingEvent {
 
 	static void register() {
 		EVENT.register((player, pos) -> {
-			MacroString string = ClientEndTickEvent.getRunningMacro();
+			MinecraftClient client = MinecraftClient.getInstance();
+
+			if (MacroManager.inDebugMode()) {
+				ClientEndTickEvent.stopCounting();
+				MacroManager.updateJumpTime();
+				ClientEndTickEvent.resetCountingTicks();
+			}
+
+			MacroString string = MacroManager.getRunningMacro();
 			if (string != null)
-				string.runEventMacro(MinecraftClient.getInstance(), EventType.PLAYER_LAND);
+				string.runEventMacro(client, EventType.PLAYER_LAND);
 		});
 	}
 }

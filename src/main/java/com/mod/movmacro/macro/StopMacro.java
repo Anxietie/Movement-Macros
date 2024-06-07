@@ -39,7 +39,7 @@ public class StopMacro extends Macro {
 				this.getParent().getById(this.id).stop(client);
 				ClientEndTickEvent.removeFromLoop(this);
 			}
-			case END -> this.getParent().decrementRunning();
+			case END -> this.getParent().decrementRunning(this);
 		}
 	}
 

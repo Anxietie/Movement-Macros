@@ -12,6 +12,4 @@ public enum MacroType {
 	STOP,
 	STOP_ALL,
 	EVENT;
-
-	public JsonElement getJsonElement() { return new JsonPrimitive(this.name().toLowerCase()); }
 }

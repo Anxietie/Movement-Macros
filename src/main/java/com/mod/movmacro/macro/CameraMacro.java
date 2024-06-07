@@ -71,7 +71,7 @@ public class CameraMacro extends Macro {
 				ClientEndTickEvent.removeFromLoop(this);
 			}
 			case END -> {
-				this.getParent().decrementRunning();
+				this.getParent().decrementRunning(this);
 				angles.addAll(completed);
 				completed.clear();
 			}

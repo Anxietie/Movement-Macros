@@ -3,7 +3,6 @@ package com.mod.movmacro.macro;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.mod.movmacro.events.ClientEndTickEvent;
 import com.mod.movmacro.macro.types.EventType;
 import com.mod.movmacro.macro.types.MacroType;
 import com.mod.movmacro.macro.types.TickType;
@@ -21,6 +20,7 @@ import java.util.*;
 @Environment(EnvType.CLIENT)
 public class MacroString {
 	private final List<Macro> macros = new ArrayList<>();
+	private final List<String> runningMacros = new ArrayList<>();
 	private final Map<EventType, Queue<EventMacro>> eventMacros = new HashMap<>();
 	private final Map<Integer, Macro> stops = new HashMap<>();
 	private int running = 0;
@@ -33,7 +33,7 @@ public class MacroString {
 
 	public void run(MinecraftClient client) {
 		for (Macro macro : macros) {
-			this.incrementRunning();
+			this.incrementRunning(macro);
 			macro.run(client, TickType.START);
 		}
 
@@ -59,25 +59,30 @@ public class MacroString {
 		if (!macro.getMacro().isRunning()) {
 			macro.run(client, TickType.START);
 			++runningEvent;
-			incrementRunning();
+			incrementRunning(macro);
 		}
 	}
 
-	public void incrementRunning() { ++this.running; }
-	public void decrementRunning() {
+	public void incrementRunning(Macro macro) {
+		++this.running;
+		runningMacros.add(macro.getMacroType().name().toLowerCase());
+	}
+	public void decrementRunning(Macro macro) {
 		--this.running;
+		runningMacros.remove(macro.getMacroType().name().toLowerCase());
 		if (!this.isRunning() && runningEvent == 0) {
-			if (this.equals(ClientEndTickEvent.getRunningMacro()))
-				ClientEndTickEvent.unlockInput();
+			if (this.equals(MacroManager.getRunningMacro()))
+				MacroManager.unlockInput();
 			resetTickDelta();
 			this.eventMacros.values().forEach(q -> q.forEach(EventMacro::resetRanCount));
 		}
 	}
 	public boolean isRunning() { return this.running > 0; }
+	public List<String> getRunningMacros() { return this.runningMacros; }
 	public String getName() { return this.name; }
-	public void endEventMacro() {
+	public void endEventMacro(Macro macro) {
 		--runningEvent;
-		decrementRunning();
+		decrementRunning(macro);
 	}
 	public void putById(int id, Macro macro) { stops.put(id, macro); }
 	public Macro getById(int id) { return stops.get(id); }
@@ -103,8 +108,8 @@ public class MacroString {
 		if (enabled) {
 			Hotkey trigger = new Hotkey("key." + json.get("trigger").getAsString(), InputUtil.fromTranslationKey(translationKey).getCode(), KeyBinding.MISC_CATEGORY);
 			trigger.setCallback(() -> {
-				if (!ClientEndTickEvent.isRunning() && this.enabled) {
-					ClientEndTickEvent.lockInput(this);
+				if (!MacroManager.hasRunningMacro() && this.enabled) {
+					MacroManager.lockInput(this);
 					this.run(MinecraftClient.getInstance());
 				}
 			});

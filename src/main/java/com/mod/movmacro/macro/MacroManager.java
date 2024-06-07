@@ -21,10 +21,14 @@ import static com.mod.movmacro.MovementMacrosClient.LOGGER;
 public class MacroManager {
 	public static final Map<String, MacroString> MACRO_NAMES = new HashMap<>();
 	public static final Map<String, LinkedList<Float>> ANGLE_FILES = new HashMap<>();
-	public static MacroString cache = null;
-	private static final String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toString() + File.separator + MODID;
+	public static final String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toString() + File.separator + MODID;
 	@SuppressWarnings("OptionalGetWithoutIsPresent")
 	public static final String EXAMPLES_DIR = FabricLoader.getInstance().getModContainer(MODID).get().findPath("example").get().toString();
+	public static MacroString cache = null;
+
+	private static MacroString running = null;
+	private static boolean debug = false;
+	private static long jumpTime = 0; // in ticks
 
 	public static boolean load() {
 		File dir = new File(CONFIG_DIR);
@@ -125,4 +129,18 @@ public class MacroManager {
 
 	public static MacroString getMacro(String name) { return MACRO_NAMES.get(name); }
 	public static LinkedList<Float> getAngleFile(String name) { return ANGLE_FILES.get(name); }
+
+	public static void lockInput(MacroString string) { running = string; }
+	public static void unlockInput() { running = null; }
+	public static boolean hasRunningMacro() { return running != null; }
+	public static MacroString getRunningMacro() { return running; }
+	public static void incrementTickDelta() { running.incrementTickDelta(); }
+
+	public static void toggleDebugMode() {
+		debug = !debug;
+		jumpTime = 0;
+	}
+	public static boolean inDebugMode() { return debug; }
+	public static void updateJumpTime() { jumpTime = ClientEndTickEvent.getCountedTicks(); }
+	public static long getLastJumpTime() { return jumpTime; }
 }

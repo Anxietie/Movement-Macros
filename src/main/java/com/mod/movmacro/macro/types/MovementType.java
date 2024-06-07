@@ -1,7 +1,5 @@
 package com.mod.movmacro.macro.types;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -33,6 +31,4 @@ public enum MovementType {
 
 	public void setPressed(boolean pressed) { this.keybind.setPressed(pressed); }
 	public boolean isPressed() { return this.keybind.isPressed(); }
-
-	public JsonElement getJsonElement() { return new JsonPrimitive(this.name()); }
 }

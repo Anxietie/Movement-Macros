@@ -15,8 +15,7 @@ import org.jetbrains.annotations.NotNull;
 @Environment(EnvType.CLIENT)
 public class MovementMacro extends Macro {
 	private MovementType movementType;
-	// in ticks
-	private int duration;
+	private int duration; // in ticks
 
 	public MovementMacro(MovementType movementType, PressType pressType, int delay, int duration) {
 		super(MacroType.MOVEMENT, pressType, delay);
@@ -54,7 +53,7 @@ public class MovementMacro extends Macro {
 			}
 			case END -> {
 				movementType.setPressed(false);
-				this.getParent().decrementRunning();
+				this.getParent().decrementRunning(this);
 			}
 		}
 	}
