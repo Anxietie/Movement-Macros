@@ -6,7 +6,6 @@ import com.mod.movmacro.events.ClientEndTickEvent;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
@@ -22,8 +21,6 @@ public class MacroManager {
 	public static final Map<String, MacroString> MACRO_NAMES = new HashMap<>();
 	public static final Map<String, LinkedList<Float>> ANGLE_FILES = new HashMap<>();
 	public static final String CONFIG_DIR = FabricLoader.getInstance().getConfigDir().toString() + File.separator + MODID;
-	@SuppressWarnings("OptionalGetWithoutIsPresent")
-	public static final String EXAMPLES_DIR = FabricLoader.getInstance().getModContainer(MODID).get().findPath("example").get().toString();
 	public static MacroString cache = null;
 
 	private static MacroString running = null;
@@ -32,17 +29,8 @@ public class MacroManager {
 
 	public static boolean load() {
 		File dir = new File(CONFIG_DIR);
-		if (!dir.exists()) {
-			if (!dir.mkdir())
-				return false;
-
-			try {
-				copyExampleMacros(dir);
-			}
-			catch (IOException e) {
-				LOGGER.error("Failed to copy example files to config directory", e);
-			}
-		}
+		if (!dir.exists() && !dir.mkdir())
+			return false;
 
 		File[] files = dir.listFiles();
 		if (files == null) return false;
@@ -74,16 +62,6 @@ public class MacroManager {
 		return true;
 	}
 
-	private static void copyExampleMacros(File configDir) throws IOException {
-		File examplesDir = new File(EXAMPLES_DIR);
-		File[] files = examplesDir.listFiles();
-		if (files == null)
-			return;
-
-		for (File f : files)
-			FileUtils.copyToDirectory(f, configDir);
-	}
-
 	private static Map.Entry<String, MacroString> processMacroString(File f) throws IOException {
 		MacroString string = new MacroString();
 		JsonReader jreader = new JsonReader(new FileReader(f));
@@ -97,7 +75,7 @@ public class MacroManager {
 		BufferedReader br = new BufferedReader(new FileReader(f));
 		String line = br.readLine();
 
-		if (line == null || !line.matches("MOVMACRO:(.*)"))
+		if (line == null || !line.matches("MOVMACRO:(.*)")) // matches text of the form "MOVMACRO:<angle file name>" (with spaces)
 			return null;
 
 		String name = line.substring(line.indexOf(':') + 1).trim();

@@ -20,7 +20,7 @@ import java.util.*;
 @Environment(EnvType.CLIENT)
 public class MacroString {
 	private final List<Macro> macros = new ArrayList<>();
-	private final List<String> runningMacros = new ArrayList<>();
+	private final List<String> runningMacros = new ArrayList<>(); // list instead of set to preserve order
 	private final Map<EventType, Queue<EventMacro>> eventMacros = new HashMap<>();
 	private final Map<Integer, Macro> stops = new HashMap<>();
 	private int running = 0;

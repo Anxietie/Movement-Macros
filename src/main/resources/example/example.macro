@@ -6,11 +6,13 @@ MOVMACRO:example
 # lines preceded by a hashtag are skipped
 # blank lines are ignored
 
-# float
+# float/double
 9.0
 
 # int
 9
+
+# each line is 1 tick
 
 9
 9
