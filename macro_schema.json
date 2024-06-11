@@ -62,6 +62,9 @@
 						"type": "number",
 						"multipleOf": 0.01
 					},
+					"angles": {
+						"type": "string"
+					},
 					"count": {
 						"type": "integer"
 					},
