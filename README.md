@@ -7,10 +7,12 @@
 ### Features
 - Movement macros
 - Camera macros
+- Stop macros
 - Event macros
 - Debug mode
 
 ### Dependencies
 - [Fabric API](https://github.com/FabricMC/fabric)
 
-Please see the wiki for more information
+All examples can be found in [this folder](src/main/resources/example)  
+Please see the [wiki](https://github.com/Anxietie/Movement-Macros/wiki) for more information
