@@ -21,7 +21,7 @@ public abstract class DebugHudMixin {
 
 		MacroString string = MacroManager.getRunningMacro();
 		original.add("Running Macro String: " + (string == null ? "none" : string.getName()));
-		original.add("Running Macros: " + (string == null ? "[]" : string.getRunningMacros().toString()));
+		original.add("Running Inputs: " + (string == null ? "[]" : string.getRunningMacros().toString()));
 		original.add("Last Jump Time: " + MacroManager.getLastJumpTime());
 
 		return original;
