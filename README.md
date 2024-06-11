@@ -4,6 +4,11 @@
 ## DISCLAIMER
 *This is a completely client-side mod; it will run in survival and on any server. With that being siad, I do not condone the use of this mod for the purposes of gaining an unfair advantage over other players. This is NOT meant to be a mod for hacking/exploiting; it is simply a mod created for the purpose of finding strategies for parkour*
 
+**THERE ARE NO SAFETIES OR SAFEGUARDS IMPLEMENTED**  
+If a macro is missing a required field **the game won't start, or it will crash!**  
+If something is in the wrong format, **the game won't start, or it will crash!**  
+Sometimes when reloading macros with something wrong, the game won't crash and will explain the error in chat
+
 ### Features
 - Movement macros
 - Camera macros
