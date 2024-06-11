@@ -14,5 +14,5 @@
 ### Dependencies
 - [Fabric API](https://github.com/FabricMC/fabric)
 
-All examples can be found in [this folder](src/main/resources/example)  
+All examples can be found [here](src/main/resources/example)  
 Please see the [wiki](https://github.com/Anxietie/Movement-Macros/wiki) for more information

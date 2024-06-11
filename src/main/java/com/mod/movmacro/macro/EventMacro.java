@@ -56,6 +56,8 @@ public class EventMacro extends Macro {
 
 	@Override
 	public void setJsonValue(JsonElement element) {
+		fireCount = 1; // reset this upon reloading
+
 		JsonObject json = element.getAsJsonObject();
 		eventType = EventType.valueOf(json.get("event_type").getAsString().toUpperCase());
 		macroName = json.get("macro").getAsString();
