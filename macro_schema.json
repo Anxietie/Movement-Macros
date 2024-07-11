@@ -44,7 +44,8 @@
 					"event_type": {
 						"type": "string",
 						"enum": [
-							"player_land"
+							"player_land",
+							"player_jump"
 						]
 					},
 					"macro": {

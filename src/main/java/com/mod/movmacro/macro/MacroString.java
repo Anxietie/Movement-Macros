@@ -32,12 +32,11 @@ public class MacroString {
 	public MacroString() {}
 
 	public void run(MinecraftClient client) {
+		this.running = macros.size();
 		for (Macro macro : macros) {
-			this.incrementRunning(macro);
+			this.addToDebug(macro);
 			macro.run(client, TickType.START);
 		}
-
-		incrementTickDelta();
 	}
 
 	public void runEventMacro(MinecraftClient client, EventType eventType) {
@@ -59,25 +58,24 @@ public class MacroString {
 		if (!macro.getMacro().isRunning()) {
 			macro.run(client, TickType.START);
 			++runningEvent;
-			incrementRunning(macro);
+			++running;
+			addToDebug(macro);
 		}
 	}
 
-	public void incrementRunning(Macro macro) {
-		++this.running;
-		runningMacros.add(macro.getMacroType().name().toLowerCase());
-	}
+	public void addToDebug(Macro macro) { runningMacros.add(macro.getMacroType().name().toLowerCase()); }
 	public void decrementRunning(Macro macro) {
 		--this.running;
 		runningMacros.remove(macro.getMacroType().name().toLowerCase());
-		if (!this.isRunning() && runningEvent == 0) {
+
+		if (!this.isRunning()) {
 			if (this.equals(MacroManager.getRunningMacro()))
 				MacroManager.unlockInput();
 			resetTickDelta();
 			this.eventMacros.values().forEach(q -> q.forEach(EventMacro::resetRanCount));
 		}
 	}
-	public boolean isRunning() { return this.running > 0; }
+	public boolean isRunning() { return this.running > 0 || this.runningEvent > 0; }
 	public List<String> getRunningMacros() { return this.runningMacros; }
 	public String getName() { return this.name; }
 	public void endEventMacro(Macro macro) {
