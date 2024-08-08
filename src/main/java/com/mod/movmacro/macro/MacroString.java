@@ -111,8 +111,8 @@ public class MacroString {
 		trigger = null;
 		if (enabled) {
 			String triggerKey = json.get("trigger").getAsString();
-			String translationKey1 = "movmacro.trigger." + name.toLowerCase().replaceAll(" ", "-"); // "id" of key
-			String translationKey2 = "key.keyboard." + triggerKey; // key's actual key value
+			String translationKey1 = "key.movmacro.macro.trigger." + name.toLowerCase().replaceAll(" ", "-"); // "id" of keybind
+			String translationKey2 = "key.keyboard." + triggerKey; // keybind's actual key value
 			InputUtil.Key key = InputUtil.fromTranslationKey(translationKey2);
 			KeyBinding keyBinding = KeyBindingMixin.movmacro$getKeyToBindings().getOrDefault(key, null);
 
