@@ -15,7 +15,7 @@ public class Hotkey extends KeyBinding {
 	@Override
 	public void setPressed(boolean pressed) {
 		super.setPressed(pressed);
-		if (pressed)
+		if (callback != null && pressed)
 			callback.onPressed();
 	}
 

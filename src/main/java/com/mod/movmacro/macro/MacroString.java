@@ -7,13 +7,17 @@ import com.mod.movmacro.macro.types.EventType;
 import com.mod.movmacro.macro.types.MacroType;
 import com.mod.movmacro.macro.types.TickType;
 import com.mod.movmacro.macro.hotkey.Hotkey;
+import com.mod.movmacro.mixin.client.KeyBindingMixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
 
 import java.util.*;
+
+import static com.mod.movmacro.MovementMacrosClient.LOGGER;
 
 // thanks https://github.com/DanilMK/macrofactory
 
@@ -28,6 +32,7 @@ public class MacroString {
 	private String name;
 	private boolean enabled = true;
 	private int tickDelta = 0;
+	private Hotkey trigger;
 
 	public MacroString() {}
 
@@ -96,21 +101,37 @@ public class MacroString {
 	public int getTickDelta() { return this.tickDelta; }
 	public void incrementTickDelta() { ++this.tickDelta; }
 	public void resetTickDelta() { this.tickDelta = 0; }
+	public KeyBinding getTrigger() { return this.trigger; }
 
 	public void setJsonValue(JsonElement element) {
 		JsonObject json = element.getAsJsonObject();
 		name = json.get("name").getAsString();
 		enabled = json.get("enabled").getAsBoolean();
-		String translationKey = "key.keyboard." + json.get("trigger").getAsString();
 
+		trigger = null;
 		if (enabled) {
-			Hotkey trigger = new Hotkey("key." + json.get("trigger").getAsString(), InputUtil.fromTranslationKey(translationKey).getCode(), KeyBinding.MISC_CATEGORY);
-			trigger.setCallback(() -> {
-				if (!MacroManager.hasRunningMacro() && this.enabled) {
-					MacroManager.lockInput(this);
-					this.run(MinecraftClient.getInstance());
-				}
-			});
+			String triggerKey = json.get("trigger").getAsString();
+			String translationKey1 = "movmacro.trigger." + name.toLowerCase().replaceAll(" ", "-"); // "id" of key
+			String translationKey2 = "key.keyboard." + triggerKey; // key's actual key value
+			InputUtil.Key key = InputUtil.fromTranslationKey(translationKey2);
+			KeyBinding keyBinding = KeyBindingMixin.movmacro$getKeyToBindings().getOrDefault(key, null);
+
+			if (keyBinding != null && !keyBinding.getTranslationKey().equals(translationKey1)) {
+				enabled = false;
+				String msg = String.format("keybind %s for %s is already in use by %s! please change it", key, name, keyBinding.getTranslationKey());
+				if (MinecraftClient.getInstance().player != null)
+					MinecraftClient.getInstance().player.sendMessage(Text.literal(msg));
+				LOGGER.warn(msg);
+			}
+			else {
+				trigger = new Hotkey(translationKey1, InputUtil.fromTranslationKey(translationKey2).getCode(), KeyBinding.MISC_CATEGORY);
+				trigger.setCallback(() -> {
+					if (!MacroManager.hasRunningMacro() && this.enabled) {
+						MacroManager.lockInput(this);
+						this.run(MinecraftClient.getInstance());
+					}
+				});
+			}
 		}
 
 		JsonArray inputs = json.getAsJsonArray("inputs");

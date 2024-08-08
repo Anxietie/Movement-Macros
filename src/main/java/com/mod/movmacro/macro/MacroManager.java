@@ -3,9 +3,12 @@ package com.mod.movmacro.macro;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
 import com.mod.movmacro.events.ClientEndTickEvent;
+import com.mod.movmacro.mixin.client.KeyBindingMixin;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.*;
@@ -100,6 +103,28 @@ public class MacroManager {
 
 	public static boolean reload() {
 		ClientEndTickEvent.breakLoop(); // break loop first lol
+
+		// so i know what the fuck this does later:
+		// when reloading macros, all keybinds need to be reset because even though the MacroString object is destroyed, the keybind lives on in the static fields
+		// to prevent keybinds from interfering with each other they need to be removed from the static keybinding maps
+		for (MacroString macro : MACRO_NAMES.values()) {
+			KeyBinding trigger = macro.getTrigger();
+
+			if (trigger == null)
+				continue;
+
+			InputUtil.Key key = InputUtil.fromTranslationKey(trigger.getBoundKeyTranslationKey());
+			KeyBinding keybindFromKey = KeyBindingMixin.movmacro$getKeyToBindings().get(key);
+
+			// remove from id map since the macro wont exist anymore
+			KeyBindingMixin.movmacro$getKeysById().remove(trigger.getTranslationKey());
+
+			// if a keybind's bound key's translation key mapped to its keybind matches the original keybind, then it will be removed
+			// for example, if 2 different keybindings (one is a macro trigger) had the same bound key, then the key should only be removed if it's bound to the macro trigger only
+			if (keybindFromKey == null || trigger.equals(keybindFromKey))
+				KeyBindingMixin.movmacro$getKeyToBindings().remove(key);
+		}
+
 		MACRO_NAMES.clear();
 		ANGLE_FILES.clear();
 		return load();
